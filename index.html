@@ -3,27 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Image Ranking Survey</title>
+  <title>Film Ranking Survey</title>
   <link rel="stylesheet" href="style.css">
   <!-- Firebase SDKs (use 8.x for local preview compatibility) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <!-- Open Graph meta tags -->
   <meta property="og:image" content="https://kubhasena.github.io/RankSurvey/images/preview.png">
-  <meta property="og:title" content="Image Ranking Survey">
-  <meta property="og:description" content="Help us rank images by your preferences!">
+  <meta property="og:title" content="Film Ranking Survey">
+  <meta property="og:description" content="Help us rank films by your preferences!">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://kubhasena.github.io/RankSurvey/">
 </head>
 <body>
   <div class="container">
     <div id="welcome-screen">
-      <h1>Image Ranking Survey</h1>
-      <p>Welcome to the survey! You will be shown pairs of images and asked to choose your preferred one. This helps us understand your preferences. Click below to begin.</p>
+      <h1>Film Ranking Survey</h1>
+      <p>Welcome to the survey! You will be shown pairs of films and asked to choose your preferred one. This helps us understand your preferences. Click below to begin.</p>
       <button id="start-btn" class="btn">Start Survey</button>
     </div>
     <div id="survey-screen" style="display:none;">
-      <h2>Which image do you prefer?</h2>
+      <h2>Which film do you prefer?</h2>
+      <div id="progress-bar-container">
+        <div id="progress-bar"></div>
+      </div>
       <div id="pair-container"></div>
       <button id="next-btn" class="btn" style="display:none;">Next Pair</button>
       <div id="status"></div>

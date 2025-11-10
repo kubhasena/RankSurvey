@@ -10,11 +10,19 @@ var firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
 
-// --- Images to rank (replace with your own images) ---
+// --- Films to rank ---
 var images = [
-  { src: "images/sample1.jpg", label: "Sample Image 1" },
-  { src: "images/sample2.jpg", label: "Sample Image 2" },
-  { src: "images/sample3.jpg", label: "Sample Image 3" }
+  { src: "images/Annatthe.png", label: "Annatthe" },
+  { src: "images/Bahubali.png", label: "Bahubali" },
+  { src: "images/Dashavataram.png", label: "Dashavataram" },
+  { src: "images/Enthiran.png", label: "Enthiran" },
+  { src: "images/KGF.png", label: "KGF" },
+  { src: "images/Mankatha.png", label: "Mankatha" },
+  { src: "images/Panchathanthiram.png", label: "Panchathanthiram" },
+  { src: "images/Petta.png", label: "Petta" },
+  { src: "images/RRR.png", label: "RRR" },
+  { src: "images/Thuppakki.png", label: "Thuppakki" },
+  { src: "images/Vishwaroopam.png", label: "Vishwaroopam" }
 ];
 
 // --- UI Elements ---
@@ -79,8 +87,19 @@ function createMergesortState(indices) {
   return { queue: flatQueue, results: [], index: 0 };
 }
 
+function updateProgressBar() {
+  var state = mergesortState;
+  if (!state) return;
+  var total = state.queue.length;
+  var done = state.index;
+  var percent = total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0;
+  var bar = document.getElementById('progress-bar');
+  if (bar) bar.style.width = percent + '%';
+}
+
 function showNextPair() {
   var state = mergesortState;
+  updateProgressBar();
   if (state.index < state.queue.length) {
     var pair = state.queue[state.index];
     showPair(pair[0], pair[1], state);
@@ -96,10 +115,12 @@ function showPair(idxA, idxB, state) {
   pairContainer.innerHTML =
     '<div class="image-pair-row">' +
       '<div class="image-item selectable" id="imgA">' +
-        '<img src="' + images[idxA].src + '" alt="Image A">' +
+        '<img src="' + images[idxA].src + '" alt="Film A">' +
+        '<div class="film-label">' + images[idxA].label + '</div>' +
       '</div>' +
       '<div class="image-item selectable" id="imgB">' +
-        '<img src="' + images[idxB].src + '" alt="Image B">' +
+        '<img src="' + images[idxB].src + '" alt="Film B">' +
+        '<div class="film-label">' + images[idxB].label + '</div>' +
       '</div>' +
     '</div>';
   nextBtn.style.display = 'none';
