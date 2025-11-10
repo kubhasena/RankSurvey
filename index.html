@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Ranking Survey</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Firebase SDKs (use 8.x for local preview compatibility) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="welcome-screen">
+      <h1>Image Ranking Survey</h1>
+      <p>Welcome to the survey! You will be shown pairs of images and asked to choose your preferred one. This helps us understand your preferences. Click below to begin.</p>
+      <button id="start-btn" class="btn">Start Survey</button>
+    </div>
+    <div id="survey-screen" style="display:none;">
+      <h2>Which image do you prefer?</h2>
+      <div id="pair-container"></div>
+      <button id="next-btn" class="btn" style="display:none;">Next Pair</button>
+      <div id="status"></div>
+    </div>
+    <div id="finish-screen" style="display:none;">
+      <h2>Thank you for completing the survey!</h2>
+      <p>Your preferences have been submitted.</p>
+      <form id="demographic-form">
+        <h3>Optional Demographic Information</h3>
+        <label>Age: <input type="number" name="age" min="0" max="120"></label><br>
+        <label>Gender:</label>
+        <div class="gender-radio-group">
+          <label><input type="radio" name="gender" value="Male" required> Male</label>
+          <label><input type="radio" name="gender" value="Female" required> Female</label>
+        </div>
+        <label>Ethnicity: <input type="text" name="ethnicity"></label><br>
+        <label>Country of Childhood: <input type="text" name="country"></label><br>
+        <button type="submit" class="btn">Submit Demographics</button>
+      </form>
+      <div id="demographic-status"></div>
+    </div>
+  </div>
+  <script src="main.js"></script>
+</body>
+</html>
