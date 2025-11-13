@@ -38,15 +38,21 @@
         <h3>Optional Demographic Information</h3>
         <label>Age: <input type="number" name="age" min="0" max="120"></label><br>
         <label>Gender:</label>
-        <div class="gender-radio-group">
-          <label><input type="radio" name="gender" value="Male" required> Male</label>
-          <label><input type="radio" name="gender" value="Female" required> Female</label>
+        <div class="gender-selection">
+          <button type="button" class="gender-option" data-value="Male">Male</button>
+          <button type="button" class="gender-option" data-value="Female">Female</button>
         </div>
+        <input type="hidden" name="gender" value="">
         <label>Ethnicity: <input type="text" name="ethnicity"></label><br>
         <label>Country of Childhood: <input type="text" name="country"></label><br>
-        <button type="submit" class="btn">Submit Demographics</button>
+        <button type="submit" class="btn">Submit and see your rankings</button>
       </form>
       <div id="demographic-status"></div>
+    </div>
+    <div id="results-screen" style="display:none;">
+      <h2>Your response has been recorded. Thank you!</h2>
+      <h3>Your Final Rankings</h3>
+      <div id="rankings-display"></div>
     </div>
   </div>
   <script src="main.js"></script>

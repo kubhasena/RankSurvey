@@ -29,6 +29,7 @@ var images = [
 var welcomeScreen = document.getElementById('welcome-screen');
 var surveyScreen = document.getElementById('survey-screen');
 var finishScreen = document.getElementById('finish-screen');
+var resultsScreen = document.getElementById('results-screen');
 var startBtn = document.getElementById('start-btn');
 var pairContainer = document.getElementById('pair-container');
 var nextBtn = document.getElementById('next-btn');
@@ -52,46 +53,69 @@ function startSurvey() {
 }
 
 function createMergesortState(indices) {
-  // For n images, create a queue of comparisons for mergesort
-  var queue = [];
-  function buildComparisons(arr) {
-    if (arr.length <= 1) return arr;
-    if (arr.length === 2) {
-      queue.push([arr[0], arr[1]]);
-      return null; // result will be built by queue
-    }
-    var mid = Math.floor(arr.length / 2);
-    var left = buildComparisons(arr.slice(0, mid));
-    var right = buildComparisons(arr.slice(mid));
-    // After left and right are sorted, merge them
-    queue.push([arr.slice(0, mid), arr.slice(mid)]);
-    return null;
+  var state = {
+    mergeStack: [],
+    sortedArrays: {},
+    currentMerge: null,
+    totalEstimatedComparisons: Math.ceil(indices.length * Math.log2(indices.length)),
+    completedComparisons: 0,
+    nextArrayId: 0
+  };
+  
+  // Initialize with single-element arrays
+  for (var i = 0; i < indices.length; i++) {
+    state.sortedArrays[state.nextArrayId] = [indices[i]];
+    state.nextArrayId++;
   }
-  buildComparisons(indices);
-  // Flatten queue to pairs for user comparison
-  var flatQueue = [];
-  for (var i = 0; i < queue.length; i++) {
-    var pair = queue[i];
-    if (Array.isArray(pair[0]) && Array.isArray(pair[1])) {
-      // Merge step: compare each left vs each right
-      for (var l = 0; l < pair[0].length; l++) {
-        for (var r = 0; r < pair[1].length; r++) {
-          flatQueue.push([pair[0][l], pair[1][r]]);
-        }
+  
+  // Build merge operations bottom-up
+  buildMergeStack(state, indices.length);
+  
+  console.log('Mergesort initialized with', state.mergeStack.length, 'merge operations');
+  return state;
+}
+
+function buildMergeStack(state, n) {
+  var currentLevel = [];
+  
+  // Start with single element array IDs
+  for (var i = 0; i < n; i++) {
+    currentLevel.push(i);
+  }
+  
+  while (currentLevel.length > 1) {
+    var nextLevel = [];
+    
+    // Pair up arrays for merging
+    for (var i = 0; i < currentLevel.length; i += 2) {
+      if (i + 1 < currentLevel.length) {
+        // Create merge operation
+        var merge = {
+          leftId: currentLevel[i],
+          rightId: currentLevel[i + 1],
+          resultId: state.nextArrayId,
+          leftIndex: 0,
+          rightIndex: 0,
+          result: []
+        };
+        state.mergeStack.push(merge);
+        nextLevel.push(state.nextArrayId);
+        state.nextArrayId++;
+      } else {
+        // Odd one out, promote to next level
+        nextLevel.push(currentLevel[i]);
       }
-    } else {
-      flatQueue.push(pair);
     }
+    
+    currentLevel = nextLevel;
   }
-  console.log('Comparison queue:', flatQueue);
-  return { queue: flatQueue, results: [], index: 0 };
 }
 
 function updateProgressBar() {
   var state = mergesortState;
   if (!state) return;
-  var total = state.queue.length;
-  var done = state.index;
+  var total = state.totalEstimatedComparisons;
+  var done = state.completedComparisons;
   var percent = total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0;
   var bar = document.getElementById('progress-bar');
   if (bar) bar.style.width = percent + '%';
@@ -100,13 +124,17 @@ function updateProgressBar() {
 function showNextPair() {
   var state = mergesortState;
   updateProgressBar();
-  if (state.index < state.queue.length) {
-    var pair = state.queue[state.index];
-    showPair(pair[0], pair[1], state);
-  } else {
-    // Build final ranking from results
-    finalRanking = buildRankingFromResults(state.results, images.length);
+  
+  var comparison = getNextComparison(state);
+  
+  if (comparison === null) {
+    // Mergesort complete! Get final ranking
+    var finalArrayId = Math.max.apply(Math, Object.keys(state.sortedArrays).map(Number));
+    finalRanking = state.sortedArrays[finalArrayId];
     finishSurvey();
+  } else {
+    // Show user the comparison
+    showPair(comparison.elementA, comparison.elementB, state);
   }
 }
 
@@ -130,8 +158,9 @@ function showPair(idxA, idxB, state) {
     selectedElem.classList.add('selected');
     otherElem.classList.remove('selected');
     setTimeout(function() {
-      state.results.push(selectedIdx);
-      state.index++;
+      // Process the comparison result
+      var userChoseA = (selectedIdx === idxA);
+      processComparison(state, idxA, idxB, userChoseA);
       showNextPair();
     }, 250); // short delay for feedback
   }
@@ -139,18 +168,19 @@ function showPair(idxA, idxB, state) {
   imgB.onclick = function() { selectImage(idxB, imgB, imgA); };
 }
 
-function buildRankingFromResults(results, n) {
-  // Simple ranking: count wins for each image
-  var counts = Array(n).fill(0);
-  for (var i = 0; i < results.length; i++) {
-    counts[results[i]]++;
-  }
-  // Sort images by win count descending
-  var ranking = Array.from(Array(n).keys()).sort(function(a, b) {
-    return counts[b] - counts[a];
-  });
-  return ranking;
-}
+// No longer needed - we get final ranking directly from mergesort
+// function buildRankingFromResults(results, n) {
+//   // Simple ranking: count wins for each image
+//   var counts = Array(n).fill(0);
+//   for (var i = 0; i < results.length; i++) {
+//     counts[results[i]]++;
+//   }
+//   // Sort images by win count descending
+//   var ranking = Array.from(Array(n).keys()).sort(function(a, b) {
+//     return counts[b] - counts[a];
+//   });
+//   return ranking;
+// }
 
 function finishSurvey() {
   surveyScreen.style.display = 'none';
@@ -186,7 +216,7 @@ if (demographicForm) {
     e.preventDefault();
     var age = demographicForm.age.value || null;
     var ethnicity = demographicForm.ethnicity.value || null;
-    var gender = demographicForm.gender.value || null;
+    var gender = demographicForm.gender.value || null; // Now optional
     var country = demographicForm.country.value || null;
     var data = {
       age: age,
@@ -196,9 +226,10 @@ if (demographicForm) {
     };
     var statusDiv = document.getElementById('demographic-status');
     if (window.lastRankingDoc) {
+      statusDiv.textContent = 'Submitting...';
       window.lastRankingDoc.update({ demographics: data })
         .then(function() {
-          statusDiv.textContent = 'Your submission has been received. Thank you!';
+          showResultsScreen();
         })
         .catch(function() {
           statusDiv.textContent = 'Error submitting demographic info.';
@@ -207,4 +238,133 @@ if (demographicForm) {
       statusDiv.textContent = 'Ranking not found. Please refresh and try again.';
     }
   };
+}
+
+function showResultsScreen() {
+  finishScreen.style.display = 'none';
+  resultsScreen.style.display = '';
+  
+  var rankingsDisplay = document.getElementById('rankings-display');
+  var rankingHTML = '';
+  
+  for (var i = 0; i < finalRanking.length; i++) {
+    var filmIdx = finalRanking[i];
+    var film = images[filmIdx];
+    var rankNum = i + 1;
+    var isTop3 = rankNum <= 3 ? 'top-3' : '';
+    
+    rankingHTML += 
+      '<div class="ranking-item">' +
+        '<div class="rank-number ' + isTop3 + '">' + rankNum + '</div>' +
+        '<img src="' + film.src + '" alt="' + film.label + '" class="rank-poster">' +
+        '<div class="rank-details">' +
+          '<div class="rank-title">' + film.label + '</div>' +
+          '<div class="rank-position">' + getPositionText(rankNum) + '</div>' +
+        '</div>' +
+      '</div>';
+  }
+  
+  rankingsDisplay.innerHTML = rankingHTML;
+}
+
+function getPositionText(rank) {
+  if (rank === 1) return '1st Place';
+  if (rank === 2) return '2nd Place'; 
+  if (rank === 3) return '3rd Place';
+  return rank + 'th Place';
+}
+
+// Gender selection handling
+document.addEventListener('DOMContentLoaded', function() {
+  var genderOptions = document.querySelectorAll('.gender-option');
+  var genderInput = document.querySelector('input[name="gender"]');
+  
+  genderOptions.forEach(function(option) {
+    option.addEventListener('click', function() {
+      // Remove selected class from all options
+      genderOptions.forEach(function(opt) {
+        opt.classList.remove('selected');
+      });
+      
+      // Add selected class to clicked option
+      this.classList.add('selected');
+      
+      // Update hidden input value
+      genderInput.value = this.getAttribute('data-value');
+    });
+  });
+});
+
+// Get next comparison needed
+function getNextComparison(state) {
+  // If no current merge, start next one from stack
+  if (state.currentMerge === null) {
+    if (state.mergeStack.length === 0) {
+      return null; // All done!
+    }
+    state.currentMerge = state.mergeStack.shift(); // Take from front (FIFO)
+  }
+  
+  var merge = state.currentMerge;
+  var leftArray = state.sortedArrays[merge.leftId];
+  var rightArray = state.sortedArrays[merge.rightId];
+  
+  // Check if merge is complete
+  if (merge.leftIndex >= leftArray.length) {
+    // Copy remaining from right
+    while (merge.rightIndex < rightArray.length) {
+      merge.result.push(rightArray[merge.rightIndex]);
+      merge.rightIndex++;
+    }
+    finishMerge(state, merge);
+    return getNextComparison(state); // Get next
+  }
+  
+  if (merge.rightIndex >= rightArray.length) {
+    // Copy remaining from left
+    while (merge.leftIndex < leftArray.length) {
+      merge.result.push(leftArray[merge.leftIndex]);
+      merge.leftIndex++;
+    }
+    finishMerge(state, merge);
+    return getNextComparison(state); // Get next
+  }
+  
+  // Need user comparison
+  return {
+    elementA: leftArray[merge.leftIndex],
+    elementB: rightArray[merge.rightIndex]
+  };
+}
+
+// Process user's comparison result
+function processComparison(state, elementA, elementB, userChoseA) {
+  var merge = state.currentMerge;
+  var leftArray = state.sortedArrays[merge.leftId];
+  var rightArray = state.sortedArrays[merge.rightId];
+  
+  if (userChoseA) {
+    // User preferred left element
+    merge.result.push(leftArray[merge.leftIndex]);
+    merge.leftIndex++;
+  } else {
+    // User preferred right element
+    merge.result.push(rightArray[merge.rightIndex]);
+    merge.rightIndex++;
+  }
+  
+  state.completedComparisons++;
+}
+
+// Finish a merge operation
+function finishMerge(state, merge) {
+  // Store the merged result
+  state.sortedArrays[merge.resultId] = merge.result;
+  
+  // Clear current merge
+  state.currentMerge = null;
+  
+  // Clean up old arrays to save memory
+  delete state.sortedArrays[merge.leftId];
+  delete state.sortedArrays[merge.rightId];
 }

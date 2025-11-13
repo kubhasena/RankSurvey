@@ -154,20 +154,40 @@ h1 {
   box-shadow: 0 0 0 2px #1976d288;
   outline: none;
 }
-.gender-radio-group {
+.gender-selection {
   display: flex;
-  flex-direction: row;
-  gap: 2em;
+  flex-wrap: wrap;
+  gap: 0.5em;
   justify-content: center;
   margin: 0.5em 0 1em 0;
 }
-.gender-radio-group label {
-  font-size: 1em;
+
+.gender-option {
+  background: #2a2d36;
+  border: 2px solid #444;
   color: #e0e0e0;
+  padding: 0.5em 1em;
+  border-radius: 6px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
 }
-.gender-radio-group input[type="radio"] {
-  accent-color: #1976d2;
-  margin-right: 0.5em;
+
+.gender-option:hover {
+  background: #333641;
+  border-color: #666;
+}
+
+.gender-option.selected {
+  background: #1976d2;
+  border-color: #1976d2;
+  color: white;
+}
+
+.gender-option:focus {
+  outline: 2px solid #1976d288;
+  outline-offset: 2px;
 }
 .film-label {
   margin-top: 0.7em;
@@ -193,4 +213,81 @@ h1 {
   background: linear-gradient(90deg, #1976d2 0%, #2196f3 100%);
   border-radius: 8px;
   transition: width 0.3s cubic-bezier(.4,0,.2,1);
+}
+
+/* Results screen styling */
+#results-screen {
+  text-align: center;
+}
+
+#results-screen h2 {
+  color: #fff;
+  margin-bottom: 1em;
+}
+
+#results-screen h3 {
+  color: #e0e0e0;
+  margin-bottom: 1.5em;
+  font-size: 1.2em;
+}
+
+#rankings-display {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  background: #2a2d36;
+  border-radius: 8px;
+  padding: 1em;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease;
+}
+
+.ranking-item:hover {
+  transform: translateY(-2px);
+}
+
+.rank-number {
+  font-size: 2em;
+  font-weight: bold;
+  color: #1976d2;
+  width: 60px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.rank-number.top-3 {
+  color: #ffd700;
+}
+
+.rank-poster {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin: 0 1.5em;
+  flex-shrink: 0;
+}
+
+.rank-details {
+  flex-grow: 1;
+  text-align: left;
+}
+
+.rank-title {
+  font-size: 1.1em;
+  color: #fff;
+  font-weight: 500;
+  margin-bottom: 0.3em;
+}
+
+.rank-position {
+  color: #b0b0b0;
+  font-size: 0.9em;
 }
